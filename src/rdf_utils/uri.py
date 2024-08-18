@@ -13,3 +13,4 @@ URL_MM_PYTHON_JSON = f"{URL_SECORO_MM}/languages/python.json"
 
 URI_MM_PYTHON = f"{URL_SECORO_MM}/languages/python#"
 URI_MM_ENV = f"{URL_SECORO_MM}/environment#"
+URI_MM_AGN = f"{URL_SECORO_MM}/agent#"

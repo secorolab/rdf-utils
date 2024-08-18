@@ -7,7 +7,7 @@ from rdf_utils.naming import get_valid_var_name, get_valid_filename
 
 
 TEST_DIR = join(user_cache_dir(), "rdf-libs", "tests")
-TEST_STRINGS = ["with space", "with : colons", "with !. *? more special chars"]
+TEST_STRINGS = ["with space", "with : colons", "with !. *? more special / + . chars"]
 
 
 class NamingTest(unittest.TestCase):
