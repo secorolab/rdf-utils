@@ -7,6 +7,7 @@ from rdf_utils.uri import (
     URI_MM_GEOM_COORD,
     URI_MM_PYTHON,
     URI_MM_ENV,
+    URI_MM_TIME,
 )
 
 
@@ -18,3 +19,4 @@ NS_MM_PYTHON = Namespace(URI_MM_PYTHON)
 
 NS_MM_ENV = Namespace(URI_MM_ENV)
 NS_MM_AGN = Namespace(URI_MM_AGN)
+NS_MM_TIME = Namespace(URI_MM_TIME)
