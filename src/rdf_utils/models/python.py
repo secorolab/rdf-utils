@@ -3,7 +3,7 @@ from importlib import import_module
 from typing import Any
 from rdflib import Graph, URIRef
 from rdf_utils.namespace import NS_MM_PYTHON
-from rdf_utils.models import ModelBase
+from rdf_utils.models.common import ModelBase
 
 
 URI_PY_TYPE_MODULE_ATTR = NS_MM_PYTHON["ModuleAttribute"]

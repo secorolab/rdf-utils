@@ -2,11 +2,15 @@
 import unittest
 from urllib.request import urlopen
 import pyshacl
-from rdflib import ConjunctiveGraph, URIRef
-from rdf_utils.models import ModelBase, ModelLoader
+from rdflib import Dataset, URIRef
+from rdf_utils.models.common import ModelBase, ModelLoader
 from rdf_utils.uri import URL_MM_PYTHON_JSON, URL_MM_PYTHON_SHACL, URL_SECORO_M
 from rdf_utils.resolver import install_resolver
-from rdf_utils.python import import_attr_from_model, import_attr_from_node, load_py_module_attr
+from rdf_utils.models.python import (
+    import_attr_from_model,
+    import_attr_from_node,
+    load_py_module_attr,
+)
 
 
 TEST_URL = f"{URL_SECORO_M}/models/tests"
@@ -36,10 +40,10 @@ class PythonTest(unittest.TestCase):
         self.model_loader.register(load_py_module_attr)
 
     def test_python_import(self):
-        graph = ConjunctiveGraph()
+        graph = Dataset()
         graph.parse(data=PYTHON_MODEL, format="json-ld")
 
-        shacl_g = ConjunctiveGraph()
+        shacl_g = Dataset()
         shacl_g.parse(URL_MM_PYTHON_SHACL, format="turtle")
         conforms, _, report_text = pyshacl.validate(
             graph,
