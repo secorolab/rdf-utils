@@ -8,10 +8,14 @@ URI_MM_GEOM = f"{URL_COMP_ROB2B}/metamodels/geometry/structural-entities#"
 URI_MM_GEOM_REL = f"{URL_COMP_ROB2B}/metamodels/geometry/spatial-relations#"
 URI_MM_GEOM_COORD = f"{URL_COMP_ROB2B}/metamodels/geometry/coordinates#"
 
-URL_MM_PYTHON_SHACL = f"{URL_SECORO_MM}/languages/python.shacl.ttl"
-URL_MM_PYTHON_JSON = f"{URL_SECORO_MM}/languages/python.json"
-
 URI_MM_PYTHON = f"{URL_SECORO_MM}/languages/python#"
+URL_MM_PYTHON_JSON = f"{URL_SECORO_MM}/languages/python.json"
+URL_MM_PYTHON_SHACL = f"{URL_SECORO_MM}/languages/python.shacl.ttl"
+
 URI_MM_ENV = f"{URL_SECORO_MM}/environment#"
 URI_MM_AGN = f"{URL_SECORO_MM}/agent#"
 URI_MM_TIME = f"{URL_SECORO_MM}/time#"
+
+URI_MM_EL = f"{URL_SECORO_MM}/behaviour/event_loop#"
+URL_MM_EL_JSON = f"{URL_SECORO_MM}/behaviour/event_loop.json"
+URL_MM_EL_SHACL = f"{URL_SECORO_MM}/behaviour/event_loop.shacl.ttl"

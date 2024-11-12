@@ -1,6 +1,6 @@
 # SPDX-License-Identifier:  MPL-2.0
 from typing import Dict
-from rdflib import ConjunctiveGraph, Graph
+from rdflib import Dataset, Graph
 import pyshacl
 
 
@@ -20,7 +20,7 @@ def check_shacl_constraints(graph: Graph, shacl_dict: Dict[str, str], quiet=Fals
     :param shacl_dict: mapping from SHACL path to graph format, e.g. URL -> "turtle"
     :param quiet: if true will not throw an exception
     """
-    shacl_g = ConjunctiveGraph()
+    shacl_g = Dataset()
     for mm_url, fmt in shacl_dict.items():
         shacl_g.parse(mm_url, format=fmt)
 

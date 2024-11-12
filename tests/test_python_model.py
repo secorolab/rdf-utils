@@ -2,7 +2,7 @@
 import unittest
 from urllib.request import urlopen
 import pyshacl
-from rdflib import Dataset, URIRef
+from rdflib import Graph, URIRef
 from rdf_utils.models.common import ModelBase, ModelLoader
 from rdf_utils.uri import URL_MM_PYTHON_JSON, URL_MM_PYTHON_SHACL, URL_SECORO_M
 from rdf_utils.resolver import install_resolver
@@ -13,8 +13,8 @@ from rdf_utils.models.python import (
 )
 
 
-TEST_URL = f"{URL_SECORO_M}/models/tests"
-URI_OS_PATH_EXISTS = f"{TEST_URL}/test-os-path-exists"
+URI_TEST = f"{URL_SECORO_M}/models/tests"
+URI_OS_PATH_EXISTS = f"{URI_TEST}/test-os-path-exists"
 PYTHON_MODEL = f"""
 {{
     "@context": [
@@ -40,10 +40,10 @@ class PythonTest(unittest.TestCase):
         self.model_loader.register(load_py_module_attr)
 
     def test_python_import(self):
-        graph = Dataset()
+        graph = Graph()
         graph.parse(data=PYTHON_MODEL, format="json-ld")
 
-        shacl_g = Dataset()
+        shacl_g = Graph()
         shacl_g.parse(URL_MM_PYTHON_SHACL, format="turtle")
         conforms, _, report_text = pyshacl.validate(
             graph,
