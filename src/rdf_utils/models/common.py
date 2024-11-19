@@ -25,15 +25,21 @@ class ModelBase(object):
     types: set[URIRef]
     _attributes: Dict[URIRef, Any]
 
-    def __init__(self, node_id: URIRef, graph: Optional[Graph] = None, types: Optional[set[URIRef]] = None) -> None:
+    def __init__(
+        self, node_id: URIRef, graph: Optional[Graph] = None, types: Optional[set[URIRef]] = None
+    ) -> None:
         self.id = node_id
         if graph is not None:
             self.types = get_node_types(graph=graph, node_id=node_id)
-            assert types is None, f"ModelBase.__init__: node '{node_id}': both 'graph' and 'types' args are not None"
+            assert (
+                types is None
+            ), f"ModelBase.__init__: node '{node_id}': both 'graph' and 'types' args are not None"
         elif types is not None:
             self.types = types
         else:
-            raise RuntimeError(f"ModelBase.__init__: node '{node_id}': neither 'graph' or 'types' specified")
+            raise RuntimeError(
+                f"ModelBase.__init__: node '{node_id}': neither 'graph' or 'types' specified"
+            )
         assert len(self.types) > 0, f"node '{self.id}' has no type"
 
         self._attributes = {}
