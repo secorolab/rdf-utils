@@ -16,7 +16,7 @@ class SHACLViolation(ConstraintViolation):
 
 def check_shacl_constraints(graph: Graph, shacl_dict: Dict[str, str], quiet=False) -> bool:
     """
-    :param graph: rdfl.Graph to be checked
+    :param graph: rdflib.Graph to be checked
     :param shacl_dict: mapping from SHACL path to graph format, e.g. URL -> "turtle"
     :param quiet: if true will not throw an exception
     """

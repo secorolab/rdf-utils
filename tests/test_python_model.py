@@ -1,8 +1,8 @@
 # SPDX-License-Identifier:  MPL-2.0
 import unittest
 from urllib.request import urlopen
-import pyshacl
 from rdflib import Graph, URIRef
+from rdf_utils.constraints import check_shacl_constraints
 from rdf_utils.models.common import ModelBase, ModelLoader
 from rdf_utils.uri import URL_MM_PYTHON_JSON, URL_MM_PYTHON_SHACL, URL_SECORO_M
 from rdf_utils.resolver import install_resolver
@@ -43,16 +43,9 @@ class PythonTest(unittest.TestCase):
         graph = Graph()
         graph.parse(data=PYTHON_MODEL, format="json-ld")
 
-        shacl_g = Graph()
-        shacl_g.parse(URL_MM_PYTHON_SHACL, format="turtle")
-        conforms, _, report_text = pyshacl.validate(
-            graph,
-            shacl_graph=shacl_g,
-            data_graph_format="json-ld",
-            shacl_graph_format="ttl",
-            inference="rdfs",
+        check_shacl_constraints(
+            graph=graph, shacl_dict={URL_MM_PYTHON_SHACL: "turtle"}, quiet=False
         )
-        self.assertTrue(conforms, f"SHACL validation failed:\n{report_text}")
 
         os_path_exists = import_attr_from_node(graph, URI_OS_PATH_EXISTS)
         self.assertTrue(os_path_exists(self.mm_python_shacl_path))

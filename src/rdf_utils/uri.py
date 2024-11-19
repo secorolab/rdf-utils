@@ -25,6 +25,10 @@ URI_MM_EL = f"{URL_SECORO_MM}/behaviour/event_loop#"
 URL_MM_EL_JSON = f"{URL_SECORO_MM}/behaviour/event_loop.json"
 URL_MM_EL_SHACL = f"{URL_SECORO_MM}/behaviour/event_loop.shacl.ttl"
 
+URI_MM_DISTRIB = f"{URL_SECORO_MM}/probability/distribution#"
+URL_MM_DISTRIB_JSON = f"{URL_SECORO_MM}/probability/distribution.json"
+URL_MM_DISTRIB_SHACL = f"{URL_SECORO_MM}/probability/distribution.shacl.ttl"
+
 
 def try_expand_curie(
     ns_manager: NamespaceManager, curie_str: str, quiet: bool = False
