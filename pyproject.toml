@@ -19,12 +19,15 @@ classifiers = [
     "License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)"
 ]
 dependencies = [
-  'rdflib>=7.1.0',
-  'pyshacl',
-  'platformdirs',
-  'numpy',
+  "rdflib>=7.1.0",
+  "pyshacl",
+  "platformdirs",
 ]
-
+[project.optional-dependencies]
+distrib = [
+  "numpy",
+  "scipy",
+]
 [project.urls]
 "Homepage" = "https://github.com/minhnh/rdf-utils"
 

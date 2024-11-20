@@ -174,6 +174,14 @@ class DistributionModel(ModelBase):
             self.set_attr(key=URI_DISTRIB_PRED_COV, val=cov_mat)
 
 
+def distrib_from_sampled_quantity(quantity_id: URIRef, graph: Graph) -> DistributionModel:
+    distrib_id = graph.value(subject=quantity_id, predicate=URI_DISTRIB_PRED_FROM_DISTRIB)
+    assert isinstance(
+        distrib_id, URIRef
+    ), f"Node '{quantity_id}' does not link to a distribution node: {distrib_id}"
+    return DistributionModel(distrib_id=distrib_id, graph=graph)
+
+
 def sample_from_distrib(
     distrib: DistributionModel, size: Optional[int | tuple[int, ...]] = None
 ) -> Any:
@@ -219,26 +227,3 @@ def sample_from_distrib(
         return np.random.multivariate_normal(mean=mean, cov=cov, size=size)
 
     raise RuntimeError(f"Distrib '{distrib.id}' has unhandled types: {distrib.types}")
-
-
-class SampledQuantityModel(ModelBase):
-    distribution: DistributionModel
-    _sampled_value: Optional[Any]
-
-    def __init__(self, quantity_id: URIRef, graph: Graph) -> None:
-        super().__init__(node_id=quantity_id, graph=graph)
-
-        distrib_id = graph.value(subject=self.id, predicate=URI_DISTRIB_PRED_FROM_DISTRIB)
-        assert isinstance(
-            distrib_id, URIRef
-        ), f"SampledQuantity '{self.id}' does not link to a distribution node: {distrib_id}"
-        self.distribution = DistributionModel(distrib_id=distrib_id, graph=graph)
-
-        self._sampled_value = None
-
-    def sample(self, resample: bool = True) -> Any:
-        if not resample and self._sampled_value is not None:
-            return self._sampled_value
-
-        self._sampled_value = sample_from_distrib(distrib=self.distribution)
-        return self._sampled_value
