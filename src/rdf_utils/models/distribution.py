@@ -175,6 +175,12 @@ class DistributionModel(ModelBase):
 
 
 def distrib_from_sampled_quantity(quantity_id: URIRef, graph: Graph) -> DistributionModel:
+    """!Extract a distribution from a :SampledQuantity node through :from-distribution path.
+
+    @param quantity_id URIRef of the :SampledQuantity node
+    @param graph rdflib.Graph to look for distribution nodes and attributes
+    @return distribution model object
+    """
     distrib_id = graph.value(subject=quantity_id, predicate=URI_DISTRIB_PRED_FROM_DISTRIB)
     assert isinstance(
         distrib_id, URIRef
@@ -185,6 +191,13 @@ def distrib_from_sampled_quantity(quantity_id: URIRef, graph: Graph) -> Distribu
 def sample_from_distrib(
     distrib: DistributionModel, size: Optional[int | tuple[int, ...]] = None
 ) -> Any:
+    """!Sample from a distribution model based on its type.
+
+    @param distrib distribution model
+    @param size Size of the sample, which matches size argument in numpy.random calls.
+                Will be ignored for random rotations at the moment. For uniform and normal distribs,
+                tuple size should have last dimension matching the distrib's dimension.
+    """
     if URI_DISTRIB_TYPE_UNIFORM_ROT in distrib.types:
         try:
             from scipy.spatial.transform import Rotation
