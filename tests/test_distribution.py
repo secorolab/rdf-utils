@@ -5,7 +5,7 @@ from rdflib import Graph, URIRef
 from rdf_utils.constraints import check_shacl_constraints
 from rdf_utils.models.distribution import (
     DistributionModel,
-    SampledQuantityModel,
+    distrib_from_sampled_quantity,
     sample_from_distrib,
 )
 from rdf_utils.resolver import install_resolver
@@ -26,7 +26,7 @@ def get_matrix_string(matrix):
     row_strs = []
     for row in matrix:
         row_strs.append(f"[{', '.join(map(str, row))}]")
-    return f"[{", ".join(row_strs)}]"
+    return f"[{', '.join(row_strs)}]"
 
 
 # JSON-LD model
@@ -54,8 +54,8 @@ VALID_DISTRIB_MODEL = f"""
         }},
         {{
             "@id": "{URI_TEST_UNIFORM_MULTI}", "@type": [ "Distribution", "Uniform" ], "dimension": {DIM},
-            "lower-bound": [ {", ".join(map(str, RAND_NUMS))} ],
-            "upper-bound": [ {", ".join(map(str, RAND_NUMS + RAND_RANGE))} ]
+            "lower-bound": [ {', '.join(map(str, RAND_NUMS))} ],
+            "upper-bound": [ {', '.join(map(str, RAND_NUMS + RAND_RANGE))} ]
         }},
         {{
             "@id": "{URI_TEST_NORMAL_UNI}", "@type": [ "Distribution", "Normal" ],
@@ -63,7 +63,7 @@ VALID_DISTRIB_MODEL = f"""
         }},
         {{
             "@id": "{URI_TEST_NORMAL_MULTI}", "@type": [ "Distribution", "Normal" ], "dimension": {DIM},
-            "mean": [ {", ".join(map(str, RAND_NUMS))} ],
+            "mean": [ {', '.join(map(str, RAND_NUMS))} ],
             "covariance": {get_matrix_string(RAND_COV)}
         }}
     ]
@@ -84,18 +84,12 @@ class DistributionTest(unittest.TestCase):
         )
 
         # uniform rotation with resampling
-        uni_rot = SampledQuantityModel(quantity_id=URIRef(URI_TEST_SAMPLED_ROT), graph=correct_g)
-        rot1 = uni_rot.sample()
-        rot2 = uni_rot.sample(resample=False)
-        rot3 = uni_rot.sample(resample=True)
-        self.assertIs(
-            rot1, rot2, "SampledQuantityModel.sample does not cache when 'resample' is False"
+        uni_rot = distrib_from_sampled_quantity(
+            quantity_id=URIRef(URI_TEST_SAMPLED_ROT), graph=correct_g
         )
-        self.assertIsNot(
-            rot1, rot3, "SampledQuantityModel.sample does not get new value 'resample' is True"
-        )
-        rot1_quat = rot1.as_quat()
-        self.assertTrue(len(rot1_quat) == 4, "random rotation did not return a valid quaternion")
+        rot = sample_from_distrib(distrib=uni_rot)
+        rot_quat = rot.as_quat()
+        self.assertTrue(len(rot_quat) == 4, "random rotation did not return a valid quaternion")
 
         # univariate uniform distribution
         uniform_uni = DistributionModel(distrib_id=URIRef(URI_TEST_UNIFORM_UNI), graph=correct_g)
