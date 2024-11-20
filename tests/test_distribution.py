@@ -25,7 +25,7 @@ RAND_COV = np.round(
 def get_matrix_string(matrix):
     row_strs = []
     for row in matrix:
-        row_strs.append(f"[{", ".join(map(str, row))}]")
+        row_strs.append(f"[{', '.join(map(str, row))}]")
     return f"[{", ".join(row_strs)}]"
 
 
