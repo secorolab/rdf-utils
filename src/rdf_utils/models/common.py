@@ -29,17 +29,13 @@ class ModelBase(object):
         self, node_id: URIRef, graph: Optional[Graph] = None, types: Optional[set[URIRef]] = None
     ) -> None:
         self.id = node_id
-        if graph is not None:
-            self.types = get_node_types(graph=graph, node_id=node_id)
-            assert (
-                types is None
-            ), f"ModelBase.__init__: node '{node_id}': both 'graph' and 'types' args are not None"
-        elif types is not None:
+        if types is not None:
             self.types = types
         else:
-            raise RuntimeError(
-                f"ModelBase.__init__: node '{node_id}': neither 'graph' or 'types' specified"
-            )
+            assert (
+                graph is not None
+            ), f"ModelBase.__init__: node '{node_id}': neither 'graph' or 'types' specified"
+            self.types = get_node_types(graph=graph, node_id=node_id)
         assert len(self.types) > 0, f"node '{self.id}' has no type"
 
         self._attributes = {}
