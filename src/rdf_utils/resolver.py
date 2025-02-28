@@ -12,7 +12,7 @@ from rdf_utils.uri import URL_SECORO, URL_COMP_ROB2B
 from rdf_utils import __version__
 
 
-__PKG_CACHE_ROOT = join(platformdirs.user_cache_dir(), "rdf-utils")
+PKG_CACHE_ROOT = join(platformdirs.user_cache_dir(), "rdf-utils")
 
 
 class IriToFileResolver(urllib.request.OpenerDirector):
@@ -28,11 +28,12 @@ class IriToFileResolver(urllib.request.OpenerDirector):
                   to the mapped location.
     """
 
-    def __init__(self, url_map: dict, download: bool = True):
+    def __init__(self, url_map: dict, download: bool = True, quiet: bool = False):
         super().__init__()
         self.default_opener = urllib.request.build_opener()
         self.url_map = url_map
         self._download = download
+        self._quiet = quiet
         self._empty_header = EmailMessage()  # header expected by addinfourl
 
     def open(self, fullurl, data=None, timeout=_GLOBAL_DEFAULT_TIMEOUT):
@@ -68,6 +69,9 @@ class IriToFileResolver(urllib.request.OpenerDirector):
                     parent_path.mkdir(parents=True)
                 assert parent_path.is_dir(), f"not a directory: {parent_path}"
 
+                if not self._quiet:
+                    print(f"Dowloading '{url}' & caching to '{parent_path}'")
+
                 with self.default_opener.open(url_req, data=data, timeout=timeout) as url_data:
                     with path.open("wb") as cache_file:
                         cache_file.write(url_data.read())
@@ -89,6 +93,7 @@ def install_resolver(
     resolver: Optional[urllib.request.OpenerDirector] = None,
     url_map: Optional[dict] = None,
     download: bool = True,
+    quiet: bool = False,
 ) -> None:
     """Implements default behaviours for resolver installation
 
@@ -107,9 +112,9 @@ def install_resolver(
     if resolver is None:
         if url_map is None:
             url_map = {
-                URL_SECORO: join(__PKG_CACHE_ROOT, "secoro"),
-                URL_COMP_ROB2B: join(__PKG_CACHE_ROOT, "comp-rob2b"),
+                URL_SECORO: join(PKG_CACHE_ROOT, "secoro"),
+                URL_COMP_ROB2B: join(PKG_CACHE_ROOT, "comp-rob2b"),
             }
-        resolver = IriToFileResolver(url_map=url_map, download=download)
+        resolver = IriToFileResolver(url_map=url_map, download=download, quiet=quiet)
 
     urllib.request.install_opener(resolver)
