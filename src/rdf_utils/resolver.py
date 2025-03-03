@@ -26,6 +26,8 @@ class IriToFileResolver(urllib.request.OpenerDirector):
                  to a local directory `foo/bar/`.
         download: If true and the mapped local file does not exist, will attempt to download
                   to the mapped location.
+        quiet: If `False` and `download` is `True` will print where the file will be
+               downloaded to.
     """
 
     def __init__(self, url_map: dict, download: bool = True, quiet: bool = False):
@@ -104,6 +106,8 @@ def install_resolver(
                   For Linux this should be `$HOME/.cache/rdf-utils/`.
         url_map: URL to local path mapping to pass to `IriToFileResolver`
         download: Download file if true
+        quiet: Option for more verbose output, created for printing caching location in
+               `IriToFileResolver`
 
     Note:
         Only a single opener can be globally installed in urllib.
