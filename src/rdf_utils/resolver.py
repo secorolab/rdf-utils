@@ -17,7 +17,7 @@ PKG_CACHE_ROOT = join(platformdirs.user_cache_dir(), "rdf-utils")
 
 class IriToFileResolver(urllib.request.OpenerDirector):
     """
-    A `urllib.request.OpenerDirector` that remaps specific URLs to local files.
+    An [`OpenerDirector`](urllib.request.OpenerDirector) that remaps specific URLs to local files.
 
     Parameters:
         url_map: Mapping from a prefix of a URL to a local location.
@@ -101,13 +101,15 @@ def install_resolver(
 
     Parameters:
         resolver: Resolver to install. If none specified, the default behaviour
-                  (using `IriToFileResolver`) is to download the requested files to the
-                  user cache directory using `platformdirs`.
+                  (using [`IriToFileResolver`](rdf_utils.resolver.IriToFileResolver)) is to
+                  download the requested files to the user cache directory using
+                  [`platformdirs`](https://github.com/tox-dev/platformdirs).
                   For Linux this should be `$HOME/.cache/rdf-utils/`.
-        url_map: URL to local path mapping to pass to `IriToFileResolver`
+        url_map: URL to local path mapping to pass to
+                 [`IriToFileResolver`](rdf_utils.resolver.IriToFileResolver)
         download: Download file if true
         quiet: Option for more verbose output, created for printing caching location in
-               `IriToFileResolver`
+               [`IriToFileResolver`](rdf_utils.resolver.IriToFileResolver)
 
     Note:
         Only a single opener can be globally installed in urllib.
