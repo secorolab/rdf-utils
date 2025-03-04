@@ -2,7 +2,7 @@
 import unittest
 from rdflib import Dataset, Graph, Namespace
 from rdf_utils.constraints import check_shacl_constraints
-from rdf_utils.models.geometry import PoseCoordModel
+from rdf_utils.models.geometry import PoseCoordModel, PositionCoordModel, get_coord_vectorxyz
 from rdf_utils.resolver import install_resolver
 from rdf_utils.uri import (
     URL_COMP_ROB2B,
@@ -20,6 +20,8 @@ NS_ROB = Namespace(f"{URL_COMP_ROB2B}/robots/kinova/gen3/7dof/")
 
 NS_TEST = Namespace(f"{URL_SECORO_M}/tests/collection/")
 URI_TEST_POSE = NS_TEST["pose"]
+URI_TEST_REF_ORIGIN = NS_TEST["frame-reference-origin"]
+URI_TEST_BODY_ORIGIN = NS_TEST["frame-body-origin"]
 URI_TEST_FRAME_REF = NS_TEST["frame-reference"]
 URI_TEST_FRAME_BODY = NS_TEST["frame-body"]
 URI_TEST_EULER_POSE = NS_TEST["pose-coord-euler"]
@@ -32,11 +34,15 @@ VALID_EULER_ANGLES = f"""
         "{URL_MM_GEOM_COORD_SCR_JSON}"
     ],
     "@graph": [
+        {{ "@id": "{URI_TEST_REF_ORIGIN}", "@type": "Point" }},
+        {{ "@id": "{URI_TEST_BODY_ORIGIN}", "@type": "Point" }},
         {{
-            "@id": "{URI_TEST_FRAME_REF}", "@type": "Frame"
+            "@id": "{URI_TEST_FRAME_REF}", "@type": "Frame",
+            "origin": "{URI_TEST_REF_ORIGIN}"
         }},
         {{
-            "@id": "{URI_TEST_FRAME_BODY}", "@type": "Frame"
+            "@id": "{URI_TEST_FRAME_BODY}", "@type": "Frame",
+            "origin": "{URI_TEST_BODY_ORIGIN}"
         }},
         {{
             "@id": "{URI_TEST_POSE}", "@type": "Pose",
@@ -45,7 +51,7 @@ VALID_EULER_ANGLES = f"""
         {{
             "@id": "{URI_TEST_EULER_POSE}",
             "@type": [
-                "PoseReference", "PoseCoordinate", "EulerAngles"
+                "VectorXYZ", "PoseReference", "PoseCoordinate", "EulerAngles"
             ],
             "of-pose": "{URI_TEST_POSE}",
             "as-seen-by": "{URI_TEST_FRAME_REF}",
@@ -75,9 +81,15 @@ class GeometryTest(unittest.TestCase):
             graph=kinova_g, shacl_dict={URL_MM_GEOM_SHACL: "turtle"}, quiet=False
         )
 
-        _ = PoseCoordModel(
-            pose_coord_id=NS_ROB["pose-coord-link0-joint1-wrt-link0-root"], graph=kinova_g
+        pose_model = PoseCoordModel(
+            coord_id=NS_ROB["pose-coord-link0-joint1-wrt-link0-root"], graph=kinova_g
         )
+        _ = get_coord_vectorxyz(pose_model, kinova_g)
+
+        position_model = PositionCoordModel(
+            coord_id=NS_ROB["position-coord-link0-com-wrt-link0-root-origin"], graph=kinova_g
+        )
+        _ = get_coord_vectorxyz(position_model, kinova_g)
 
     def test_euler_geom_model(self):
         euler_g = Graph()
@@ -87,4 +99,5 @@ class GeometryTest(unittest.TestCase):
             graph=euler_g, shacl_dict={URL_MM_GEOM_SHACL: "turtle"}, quiet=False
         )
 
-        _ = PoseCoordModel(pose_coord_id=URI_TEST_EULER_POSE, graph=euler_g)
+        pose_model = PoseCoordModel(coord_id=URI_TEST_EULER_POSE, graph=euler_g)
+        _ = get_coord_vectorxyz(pose_model, euler_g)
