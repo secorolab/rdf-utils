@@ -1,8 +1,20 @@
 # SPDX-Litense-Identifier:  MPL-2.0
+from scipy.spatial.transform import Rotation
 from rdflib import Graph, Literal, URIRef
+from rdf_utils.constraints import ConstraintViolation
 from rdf_utils.models.common import ModelBase
-from rdf_utils.namespace import NS_MM_GEOM, NS_MM_GEOM_COORD, NS_MM_GEOM_COORD_SCR, NS_MM_GEOM_REL
+from rdf_utils.namespace import (
+    NS_MM_GEOM,
+    NS_MM_GEOM_COORD,
+    NS_MM_GEOM_COORD_SCR,
+    NS_MM_GEOM_REL,
+    NS_MM_QUDT,
+    NS_MM_QUDT_UNIT,
+)
 
+URI_QUDT_TYPE_RAD = NS_MM_QUDT_UNIT["RAD"]
+URI_QUDT_TYPE_DEG = NS_MM_QUDT_UNIT["DEG"]
+URI_QUDT_PRED_UNIT = NS_MM_QUDT["unit"]
 
 URI_GEOM_TYPE_POINT = NS_MM_GEOM["Point"]
 URI_GEOM_TYPE_FRAME = NS_MM_GEOM["Frame"]
@@ -17,17 +29,25 @@ URI_GEOM_TYPE_POSE_COORD = NS_MM_GEOM_COORD["PoseCoordinate"]
 URI_GEOM_TYPE_POSE_REF = NS_MM_GEOM_COORD["PoseReference"]
 URI_GEOM_TYPE_VECTOR_XYZ = NS_MM_GEOM_COORD["VectorXYZ"]
 URI_GEOM_TYPE_EULER_ANGLES = NS_MM_GEOM_COORD_SCR["EulerAngles"]
+URI_GEOM_TYPE_ANGLES_ABG = NS_MM_GEOM_COORD_SCR["AnglesAlphaBetaGamma"]
+URI_GEOM_TYPE_EXTRINSIC = NS_MM_GEOM_COORD_SCR["Extrinsic"]
+URI_GEOM_TYPE_INTRINSIC = NS_MM_GEOM_COORD_SCR["Intrinsic"]
 URI_GEOM_TYPE_QUATERNION = NS_MM_GEOM_COORD_SCR["Quaternion"]
 
 URI_GEOM_PRED_ORIGIN = NS_MM_GEOM["origin"]
 URI_GEOM_PRED_OF = NS_MM_GEOM_REL["of"]
 URI_GEOM_PRED_WRT = NS_MM_GEOM_REL["with-respect-to"]
+URI_GEOM_PRED_SEEN_BY = NS_MM_GEOM_COORD["as-seen-by"]
 URI_GEOM_PRED_OF_POSE = NS_MM_GEOM_COORD["of-pose"]
 URI_GEOM_PRED_OF_POSITION = NS_MM_GEOM_COORD["of-position"]
 URI_GEOM_PRED_OF_ORIENT = NS_MM_GEOM_COORD["of-orientation"]
 URI_GEOM_PRED_X = NS_MM_GEOM_COORD["x"]
 URI_GEOM_PRED_Y = NS_MM_GEOM_COORD["y"]
 URI_GEOM_PRED_Z = NS_MM_GEOM_COORD["z"]
+URI_GEOM_PRED_AXES_SEQ = NS_MM_GEOM_COORD_SCR["axes-sequence"]
+URI_GEOM_PRED_ALPHA = NS_MM_GEOM_COORD_SCR["alpha"]
+URI_GEOM_PRED_BETA = NS_MM_GEOM_COORD_SCR["beta"]
+URI_GEOM_PRED_GAMMA = NS_MM_GEOM_COORD_SCR["gamma"]
 
 
 class FrameModel(ModelBase):
@@ -53,6 +73,12 @@ class PoseCoordModel(ModelBase):
         super().__init__(node_id=coord_id, graph=graph)
 
         assert URI_GEOM_TYPE_POSE_COORD in self.types, f"'{self.id}' is not a PoseCoordinate"
+
+        seen_by_id = graph.value(subject=self.id, predicate=URI_GEOM_PRED_SEEN_BY)
+        assert seen_by_id is not None and isinstance(
+            seen_by_id, URIRef
+        ), f"PoseCoordinate '{self.id}' does not have a valid 'as-seen-by' property: {seen_by_id}"
+        self.as_seen_by = seen_by_id
 
         assert URI_GEOM_TYPE_POSE_REF in self.types, f"'{self.id}' is not a PoseReference"
         pose_id = graph.value(subject=self.id, predicate=URI_GEOM_PRED_OF_POSE)
@@ -86,6 +112,12 @@ class PositionCoordModel(ModelBase):
         assert (
             URI_GEOM_TYPE_POSITION_COORD in self.types
         ), f"'{self.id}' is not a PositionCoordinate"
+
+        seen_by_id = graph.value(subject=self.id, predicate=URI_GEOM_PRED_SEEN_BY)
+        assert (
+            seen_by_id is not None and isinstance(seen_by_id, URIRef)
+        ), f"PositionCoordinate '{self.id}' does not have a valid 'as-seen-by' property: {seen_by_id}"
+        self.as_seen_by = seen_by_id
 
         assert URI_GEOM_TYPE_POSITION_REF in self.types, f"'{self.id}' is not a PositionReference"
         position_id = graph.value(subject=self.id, predicate=URI_GEOM_PRED_OF_POSITION)
@@ -128,3 +160,76 @@ def get_coord_vectorxyz(coord_model: ModelBase, graph: Graph) -> tuple[float, fl
     ), f"Coordinate '{coord_model.id}' does not have a 'z' property of type float: {z_node}"
 
     return (x_node.value, y_node.value, z_node.value)
+
+
+def get_euler_angles_params(coord_model: PoseCoordModel, graph: Graph) -> tuple[str, bool]:
+    assert (
+        URI_GEOM_TYPE_EULER_ANGLES in coord_model.types
+    ), f"coord '{coord_model.id}' does not have type 'EulerAngles'"
+
+    if URI_GEOM_TYPE_INTRINSIC in coord_model.types:
+        is_intrinsic = True
+    elif URI_GEOM_TYPE_EXTRINSIC in coord_model.types:
+        is_intrinsic = False
+    else:
+        raise ConstraintViolation(
+            domain="geometry",
+            message=f"EulerAngles coord '{coord_model.id}' does not have 'Intrinsic' or 'Extrinsic' type",
+        )
+
+    seq_node = graph.value(subject=coord_model.id, predicate=URI_GEOM_PRED_AXES_SEQ)
+    assert (
+        isinstance(seq_node, Literal) and isinstance(seq_node.value, str)
+    ), f"Coordinate '{coord_model.id}' does not have a 'axes-sequence' property of type str: {seq_node}"
+
+    return seq_node.value, is_intrinsic
+
+
+def get_euler_angles_abg(
+    coord_model: PoseCoordModel, graph: Graph
+) -> tuple[str, bool, URIRef, tuple[float, float, float]]:
+    assert (
+        URI_GEOM_TYPE_ANGLES_ABG in coord_model.types
+    ), f"coord '{coord_model.id}' does not have type 'AnglesAlphaBetaGamma'"
+
+    seq, is_intrinsic = get_euler_angles_params(coord_model=coord_model, graph=graph)
+
+    a_node = graph.value(subject=coord_model.id, predicate=URI_GEOM_PRED_ALPHA)
+    assert isinstance(a_node, Literal) and isinstance(
+        a_node.value, float
+    ), f"Coordinate '{coord_model.id}' does not have a 'alpha' property of type float: {a_node}"
+
+    b_node = graph.value(subject=coord_model.id, predicate=URI_GEOM_PRED_BETA)
+    assert isinstance(b_node, Literal) and isinstance(
+        b_node.value, float
+    ), f"Coordinate '{coord_model.id}' does not have a 'beta' property of type float: {b_node}"
+
+    g_node = graph.value(subject=coord_model.id, predicate=URI_GEOM_PRED_GAMMA)
+    assert isinstance(g_node, Literal) and isinstance(
+        g_node.value, float
+    ), f"Coordinate '{coord_model.id}' does not have a 'gamma' property of type float: {g_node}"
+
+    angle_unit = None
+    for unit_node in graph.objects(subject=coord_model.id, predicate=URI_QUDT_PRED_UNIT):
+        assert isinstance(
+            unit_node, URIRef
+        ), f"Coordinate '{coord_model.id}' does not ref a URI 'unit': {unit_node}"
+        if unit_node != URI_QUDT_TYPE_DEG and unit_node != URI_QUDT_TYPE_RAD:
+            continue
+        angle_unit = unit_node
+
+    assert angle_unit is not None, f"Coordinate '{coord_model.id}' has invalid angle unit"
+
+    return seq, is_intrinsic, angle_unit, (a_node.value, b_node.value, g_node.value)
+
+
+def get_scipy_rotation(coord_model: PoseCoordModel, graph: Graph) -> Rotation:
+    if URI_GEOM_TYPE_ANGLES_ABG in coord_model.types:
+        seq, is_intrinsic, unit, angles = get_euler_angles_abg(coord_model=coord_model, graph=graph)
+        if is_intrinsic:
+            seq = seq.upper()
+        return Rotation.from_euler(seq=seq, angles=angles, degrees=(unit == URI_QUDT_TYPE_DEG))
+    else:
+        raise RuntimeError(
+            f"unhandled orientation coordinate type for '{coord_model.id}', types: {coord_model.types}"
+        )

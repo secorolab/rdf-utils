@@ -11,10 +11,16 @@ from rdf_utils.uri import (
     URI_MM_GEOM_COORD_SCR,
     URI_MM_PYTHON,
     URI_MM_ENV,
+    URI_MM_QUDT,
+    URI_MM_QUDT_QTY,
+    URI_MM_QUDT_UNIT,
     URI_MM_TIME,
     URI_MM_EL,
 )
 
+NS_MM_QUDT = Namespace(URI_MM_QUDT)
+NS_MM_QUDT_QTY = Namespace(URI_MM_QUDT_QTY)
+NS_MM_QUDT_UNIT = Namespace(URI_MM_QUDT_UNIT)
 
 NS_MM_GEOM = Namespace(URI_MM_GEOM)
 NS_MM_GEOM_REL = Namespace(URI_MM_GEOM_REL)

@@ -1,8 +1,16 @@
 # SPDX-Litense-Identifier:  MPL-2.0
 import unittest
+import numpy as np
 from rdflib import Dataset, Graph, Namespace
 from rdf_utils.constraints import check_shacl_constraints
-from rdf_utils.models.geometry import PoseCoordModel, PositionCoordModel, get_coord_vectorxyz
+from rdf_utils.models.geometry import (
+    URI_QUDT_TYPE_DEG,
+    PoseCoordModel,
+    PositionCoordModel,
+    get_coord_vectorxyz,
+    get_euler_angles_abg,
+    get_scipy_rotation,
+)
 from rdf_utils.resolver import install_resolver
 from rdf_utils.uri import (
     URL_COMP_ROB2B,
@@ -11,6 +19,7 @@ from rdf_utils.uri import (
     URL_MM_GEOM_JSON,
     URL_MM_GEOM_REL_JSON,
     URL_MM_GEOM_SHACL,
+    URL_MM_QUDT_JSON,
     URL_SECORO_M,
 )
 
@@ -28,6 +37,7 @@ URI_TEST_EULER_POSE = NS_TEST["pose-coord-euler"]
 VALID_EULER_ANGLES = f"""
 {{
     "@context": [
+        "{URL_MM_QUDT_JSON}",
         "{URL_MM_GEOM_JSON}",
         "{URL_MM_GEOM_REL_JSON}",
         "{URL_MM_GEOM_COORD_JSON}",
@@ -51,17 +61,14 @@ VALID_EULER_ANGLES = f"""
         {{
             "@id": "{URI_TEST_EULER_POSE}",
             "@type": [
-                "VectorXYZ", "PoseReference", "PoseCoordinate", "EulerAngles"
+                "VectorXYZ", "PoseReference", "PoseCoordinate", "EulerAngles", "AnglesABG", "Intrinsic"
             ],
             "of-pose": "{URI_TEST_POSE}",
             "as-seen-by": "{URI_TEST_FRAME_REF}",
             "axes-sequence": "xyz",
-            "unit": [ "M", "RAD" ],
-            "alpha": 45.0,
-            "beta": 0.0,
-            "x": 10.0,
-            "y": 5.0,
-            "z": 0.0
+            "unit": [ "M", "DEG" ],
+            "alpha": 45.0, "beta": 0.0, "gamma": 0.0,
+            "x": 10.0, "y": 5.0, "z": 0.0
         }}
     ]
 }}
@@ -100,4 +107,14 @@ class GeometryTest(unittest.TestCase):
         )
 
         pose_model = PoseCoordModel(coord_id=URI_TEST_EULER_POSE, graph=euler_g)
-        _ = get_coord_vectorxyz(pose_model, euler_g)
+        x, y, z = get_coord_vectorxyz(pose_model, euler_g)
+        assert x == 10.0 and y == 5.0 and z == 0.0
+
+        seq, is_intrinsic, unit, angles = get_euler_angles_abg(pose_model, euler_g)
+        assert angles[0] == 45.0 and angles[1] == 0.0 and angles[2] == 0.0
+
+        rot = get_scipy_rotation(pose_model, euler_g)
+        if is_intrinsic:
+            seq = seq.upper()
+        scipy_angles = rot.as_euler(seq=seq, degrees=(unit == URI_QUDT_TYPE_DEG))
+        assert np.allclose(angles, scipy_angles)
