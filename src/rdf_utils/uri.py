@@ -11,6 +11,11 @@ URL_SECORO = "https://secorolab.github.io"
 URL_SECORO_MM = f"{URL_SECORO}/metamodels"
 URL_SECORO_M = f"{URL_SECORO}/models"
 
+URI_MM_QUDT = "http://qudt.org/schema/qudt/"
+URI_MM_QUDT_QTY = "http://qudt.org/vocab/quantitykind/"
+URI_MM_QUDT_UNIT = "http://qudt.org/vocab/unit/"
+URL_MM_QUDT_JSON = f"{URL_COMP_ROB2B}/metamodels/qudt.json"
+
 URI_MM_GEOM = f"{URL_COMP_ROB2B}/metamodels/geometry/structural-entities#"
 URI_MM_GEOM_REL = f"{URL_COMP_ROB2B}/metamodels/geometry/spatial-relations#"
 URI_MM_GEOM_COORD = f"{URL_COMP_ROB2B}/metamodels/geometry/coordinates#"
