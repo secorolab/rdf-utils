@@ -1,22 +1,30 @@
 # SPDX-Litense-Identifier:  MPL-2.0
 from rdflib import Graph, Literal, URIRef
 from rdf_utils.models.common import ModelBase
-from rdf_utils.namespace import NS_MM_GEOM, NS_MM_GEOM_COORD, NS_MM_GEOM_REL
+from rdf_utils.namespace import NS_MM_GEOM, NS_MM_GEOM_COORD, NS_MM_GEOM_COORD_SCR, NS_MM_GEOM_REL
 
 
+URI_GEOM_TYPE_POINT = NS_MM_GEOM["Point"]
+URI_GEOM_TYPE_FRAME = NS_MM_GEOM["Frame"]
 URI_GEOM_TYPE_POSE = NS_MM_GEOM_REL["Pose"]
 URI_GEOM_TYPE_POSITION = NS_MM_GEOM_REL["Position"]
-URI_GEOM_TYPE_POSE_COORD = NS_MM_GEOM_COORD["PoseCoordinate"]
-URI_GEOM_TYPE_POSE_REF = NS_MM_GEOM_COORD["PoseReference"]
+URI_GEOM_TYPE_ORIENT = NS_MM_GEOM_REL["Orientation"]
 URI_GEOM_TYPE_POSITION_COORD = NS_MM_GEOM_COORD["PositionCoordinate"]
 URI_GEOM_TYPE_POSITION_REF = NS_MM_GEOM_COORD["PositionReference"]
-URI_GEOM_TYPE_VECTORXYZ = NS_MM_GEOM_COORD["VectorXYZ"]
+URI_GEOM_TYPE_ORIENT_COORD = NS_MM_GEOM_COORD["OrientationCoordinate"]
+URI_GEOM_TYPE_ORIENT_REF = NS_MM_GEOM_COORD["OrientationReference"]
+URI_GEOM_TYPE_POSE_COORD = NS_MM_GEOM_COORD["PoseCoordinate"]
+URI_GEOM_TYPE_POSE_REF = NS_MM_GEOM_COORD["PoseReference"]
+URI_GEOM_TYPE_VECTOR_XYZ = NS_MM_GEOM_COORD["VectorXYZ"]
+URI_GEOM_TYPE_EULER_ANGLES = NS_MM_GEOM_COORD_SCR["EulerAngles"]
+URI_GEOM_TYPE_QUATERNION = NS_MM_GEOM_COORD_SCR["Quaternion"]
 
 URI_GEOM_PRED_ORIGIN = NS_MM_GEOM["origin"]
 URI_GEOM_PRED_OF = NS_MM_GEOM_REL["of"]
 URI_GEOM_PRED_WRT = NS_MM_GEOM_REL["with-respect-to"]
 URI_GEOM_PRED_OF_POSE = NS_MM_GEOM_COORD["of-pose"]
 URI_GEOM_PRED_OF_POSITION = NS_MM_GEOM_COORD["of-position"]
+URI_GEOM_PRED_OF_ORIENT = NS_MM_GEOM_COORD["of-orientation"]
 URI_GEOM_PRED_X = NS_MM_GEOM_COORD["x"]
 URI_GEOM_PRED_Y = NS_MM_GEOM_COORD["y"]
 URI_GEOM_PRED_Z = NS_MM_GEOM_COORD["z"]
@@ -101,7 +109,7 @@ class PositionCoordModel(ModelBase):
 
 def get_coord_vectorxyz(coord_model: ModelBase, graph: Graph) -> tuple[float, float, float]:
     assert (
-        URI_GEOM_TYPE_VECTORXYZ in coord_model.types
+        URI_GEOM_TYPE_VECTOR_XYZ in coord_model.types
     ), f"Coordinate '{coord_model.id}' is not of type 'VectorXYZ'"
 
     x_node = graph.value(subject=coord_model.id, predicate=URI_GEOM_PRED_X)
