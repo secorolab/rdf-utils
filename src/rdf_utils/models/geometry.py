@@ -1,4 +1,9 @@
 # SPDX-Litense-Identifier:  MPL-2.0
+"""
+Module for processing geometry models using concepts from
+[comp-rob2b](https://github.com/comp-rob2b/metamodels/) and ones introduced for use by the
+[SECORO](https://github.com/secorolab/metamodels/) group.
+"""
 from scipy.spatial.transform import Rotation
 from rdflib import Graph, Literal, URIRef
 from rdf_utils.constraints import ConstraintViolation
@@ -51,6 +56,15 @@ URI_GEOM_PRED_GAMMA = NS_MM_GEOM_COORD_SCR["gamma"]
 
 
 class FrameModel(ModelBase):
+    """Model object for a Frame
+
+    Attributes:
+        origin: URI for origin Point of the Frame
+
+    Parameters:
+        frame_id: URI of the frame in the graph
+        graph: RDF graph for loading attributes
+    """
     origin: URIRef
 
     def __init__(self, frame_id: URIRef, graph: Graph) -> None:
@@ -64,6 +78,18 @@ class FrameModel(ModelBase):
 
 
 class PoseCoordModel(ModelBase):
+    """Model object for a PoseCoordinate
+
+    Attributes:
+        pose: URI of Pose of the coordinate
+        of: the pose's target frame
+        wrt: the pose's reference frame
+        as_seen_by: the coordinate's reference frame
+
+    Parameters:
+        coord_id: URI of the PoseCoordinate in the graph
+        graph: RDF graph for loading attributes
+    """
     pose: URIRef
     of: FrameModel
     wrt: FrameModel
@@ -101,6 +127,18 @@ class PoseCoordModel(ModelBase):
 
 
 class PositionCoordModel(ModelBase):
+    """Model object for a PoseCoordinate
+
+    Attributes:
+        position: URI of Position of the coordinate
+        of: URI of the position's target Point
+        wrt: URI of the position's reference Point
+        as_seen_by: the coordinate's reference frame
+
+    Parameters:
+        coord_id: URI of the PositionCoordinate in the graph
+        graph: RDF graph for loading attributes
+    """
     position: URIRef
     of: URIRef
     wrt: URIRef
@@ -140,6 +178,15 @@ class PositionCoordModel(ModelBase):
 
 
 def get_coord_vectorxyz(coord_model: ModelBase, graph: Graph) -> tuple[float, float, float]:
+    """Extract coordinates for a VectorXYZ model.
+
+    Parameters:
+        coord_model: coordinate model object
+        graph: RDF graph to look for coordinate attributes
+
+    Returns:
+        tuple containing (x, y, z) coordinates
+    """
     assert (
         URI_GEOM_TYPE_VECTOR_XYZ in coord_model.types
     ), f"Coordinate '{coord_model.id}' is not of type 'VectorXYZ'"
@@ -163,6 +210,15 @@ def get_coord_vectorxyz(coord_model: ModelBase, graph: Graph) -> tuple[float, fl
 
 
 def get_euler_angles_params(coord_model: PoseCoordModel, graph: Graph) -> tuple[str, bool]:
+    """Extract parameters for a EulerAngles model.
+
+    Parameters:
+        coord_model: coordinate model object, currently only handle PoseCoordModel
+        graph: RDF graph to look for coordinate attributes
+
+    Returns:
+        tuple containing axes sequence of the Euler angles and whether the rotation is intrinsic
+    """
     assert (
         URI_GEOM_TYPE_EULER_ANGLES in coord_model.types
     ), f"coord '{coord_model.id}' does not have type 'EulerAngles'"
@@ -188,6 +244,19 @@ def get_euler_angles_params(coord_model: PoseCoordModel, graph: Graph) -> tuple[
 def get_euler_angles_abg(
     coord_model: PoseCoordModel, graph: Graph
 ) -> tuple[str, bool, URIRef, tuple[float, float, float]]:
+    """Extract coordinates for a AnglesAlphaBetaGamma model.
+
+    Parameters:
+        coord_model: coordinate model object, currently only handle PoseCoordModel
+        graph: RDF graph to look for coordinate attributes
+
+    Returns:
+        tuple containing:
+        - axes sequence of the Euler angles
+        - whether the rotation is intrinsic
+        - unit of the angle values (degrees or radians)
+        - angle values
+    """
     assert (
         URI_GEOM_TYPE_ANGLES_ABG in coord_model.types
     ), f"coord '{coord_model.id}' does not have type 'AnglesAlphaBetaGamma'"
@@ -217,6 +286,7 @@ def get_euler_angles_abg(
         if unit_node != URI_QUDT_TYPE_DEG and unit_node != URI_QUDT_TYPE_RAD:
             continue
         angle_unit = unit_node
+        break
 
     assert angle_unit is not None, f"Coordinate '{coord_model.id}' has invalid angle unit"
 
@@ -224,6 +294,18 @@ def get_euler_angles_abg(
 
 
 def get_scipy_rotation(coord_model: PoseCoordModel, graph: Graph) -> Rotation:
+    """Parse orientation coordinate in a graph into a SciPy Rotation.
+
+    Handles and convert different orientation coordinate types into a
+    [SciPy Rotation](scipy.spatial.transform.Rotation)
+
+    Parameters:
+        coord_model: coordinate model object, currently only handle PoseCoordModel
+        graph: RDF graph to look for coordinate attributes
+
+    Returns:
+        Corresponding [SciPy Rotation](scipy.spatial.transform.Rotation)
+    """
     if URI_GEOM_TYPE_ANGLES_ABG in coord_model.types:
         seq, is_intrinsic, unit, angles = get_euler_angles_abg(coord_model=coord_model, graph=graph)
         if is_intrinsic:

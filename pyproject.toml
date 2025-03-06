@@ -24,7 +24,7 @@ dependencies = [
   "platformdirs",
 ]
 [project.optional-dependencies]
-distrib = [
+all = [
   "numpy",
   "scipy",
 ]
