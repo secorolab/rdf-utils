@@ -23,8 +23,7 @@ URL_MM_GEOM_JSON = f"{URL_COMP_ROB2B}/metamodels/geometry/structural-entities.js
 URL_MM_GEOM_REL_JSON = f"{URL_COMP_ROB2B}/metamodels/geometry/spatial-relations.json"
 URL_MM_GEOM_COORD_JSON = f"{URL_COMP_ROB2B}/metamodels/geometry/coordinates.json"
 
-URI_MM_GEOM_COORD_SCR = f"{URL_SECORO_MM}/geometry/coordinates#"
-URL_MM_GEOM_COORD_SCR_JSON = f"{URL_SECORO_MM}/geometry/coordinates.json"
+URL_MM_GEOM_COORD_SECO_JSON = f"{URL_SECORO_MM}/geometry/coordinates.json"
 URL_MM_GEOM_SHACL = f"{URL_SECORO_MM}/geometry/geometry.shacl.ttl"
 
 URI_MM_PYTHON = f"{URL_SECORO_MM}/languages/python#"

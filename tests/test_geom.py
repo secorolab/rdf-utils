@@ -15,7 +15,7 @@ from rdf_utils.resolver import install_resolver
 from rdf_utils.uri import (
     URL_COMP_ROB2B,
     URL_MM_GEOM_COORD_JSON,
-    URL_MM_GEOM_COORD_SCR_JSON,
+    URL_MM_GEOM_COORD_SECO_JSON,
     URL_MM_GEOM_JSON,
     URL_MM_GEOM_REL_JSON,
     URL_MM_GEOM_SHACL,
@@ -41,7 +41,7 @@ VALID_EULER_ANGLES = f"""
         "{URL_MM_GEOM_JSON}",
         "{URL_MM_GEOM_REL_JSON}",
         "{URL_MM_GEOM_COORD_JSON}",
-        "{URL_MM_GEOM_COORD_SCR_JSON}"
+        "{URL_MM_GEOM_COORD_SECO_JSON}"
     ],
     "@graph": [
         {{ "@id": "{URI_TEST_REF_ORIGIN}", "@type": "Point" }},
