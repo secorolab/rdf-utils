@@ -34,7 +34,7 @@ jobs:
         ruff check .
     - name: Install package
       run: |
-        pip install ".[distrib]"
+        pip install ".[all]"
     - name: Test with pytest
       run: |
         pytest
