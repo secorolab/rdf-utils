@@ -9,7 +9,7 @@ URL_SECORO_M = f"{URL_SECORO}/models"
 URL_COMP_ROB2B = "https://comp-rob2b.github.io"
 
 URL_MM_GEOM_COORD_SECO_JSON = f"{URL_SECORO_MM}/geometry/coordinates.json"
-URL_MM_GEOM_SHACL = f"{URL_SECORO_MM}/geometry/geometry.shacl.ttl"
+URL_MM_GEOM_SHACL_EXTS = f"{URL_SECORO_MM}/geometry/geometry.shacl.ttl"
 URL_MM_PYTHON_JSON = f"{URL_SECORO_MM}/languages/python.json"
 URL_MM_PYTHON_SHACL = f"{URL_SECORO_MM}/languages/python.shacl.ttl"
 URL_MM_EL_JSON = f"{URL_SECORO_MM}/behaviour/event_loop.json"

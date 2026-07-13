@@ -17,7 +17,7 @@ from rdf_utils.namespace import (
     URL_MM_GEOM_COORD_SECO_JSON,
     URL_MM_GEOM_JSON,
     URL_MM_GEOM_REL_JSON,
-    URL_MM_GEOM_SHACL,
+    URL_MM_GEOM_SHACL_EXTS,
     URL_MM_GEOM_SHACL_COORD,
     URL_MM_GEOM_SHACL_REL,
     URL_MM_QUDT_JSON,
@@ -93,7 +93,7 @@ class GeometryTest(unittest.TestCase):
         check_shacl_constraints(
             graph=euler_g,
             shacl_dict={
-                URL_MM_GEOM_SHACL: "ttl",
+                URL_MM_GEOM_SHACL_EXTS: "ttl",
                 URL_MM_GEOM_SHACL_REL: "ttl",
                 URL_MM_GEOM_SHACL_COORD: "ttl",
             },
