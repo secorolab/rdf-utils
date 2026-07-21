@@ -1,9 +1,35 @@
 # SPDX-License-Identifier:  MPL-2.0
 from typing import Iterable, Optional, Union
+from urllib.parse import urlsplit, urlunsplit
+
 from rdflib import URIRef
+from rdflib.namespace import NamespaceManager
 from rdflib.util import from_n3
 from rdflib.term import Node as RDFNode
-from rdflib.namespace import NamespaceManager
+
+
+def iri_parent(value: URIRef | str) -> URIRef:
+    """Return the parent IRI: hierarchy lives in the path, a fragment names a term in its document."""
+    parsed = urlsplit(str(value))
+    if parsed.fragment:
+        return URIRef(urlunsplit(parsed._replace(query="", fragment="")))
+
+    parent, separator, _name = parsed.path.rstrip("/").rpartition("/")
+    if not separator:
+        raise ValueError(f"IRI has no parent path: {value}")
+    return URIRef(urlunsplit(parsed._replace(path=parent or "/", query="", fragment="")))
+
+
+def iri_is_descendant(parent: URIRef | str, value: URIRef | str) -> bool:
+    """True when value sits below parent in the same IRI hierarchy."""
+    ancestor, current = URIRef(str(parent).rstrip("/")), URIRef(str(value))
+    while True:
+        try:
+            current = iri_parent(current)
+        except ValueError:
+            return False
+        if current == ancestor:
+            return True
 
 
 def try_expand_curie(
