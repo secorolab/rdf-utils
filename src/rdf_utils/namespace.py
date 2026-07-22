@@ -16,6 +16,8 @@ URL_MM_EL_JSON = f"{URL_SECORO_MM}/behaviour/event_loop.json"
 URL_MM_EL_SHACL = f"{URL_SECORO_MM}/behaviour/event_loop.shacl.ttl"
 URL_MM_DISTRIB_JSON = f"{URL_SECORO_MM}/probability/distribution.json"
 URL_MM_DISTRIB_SHACL = f"{URL_SECORO_MM}/probability/distribution.shacl.ttl"
+URL_MM_PROV_JSON = f"{URL_SECORO_MM}/prov.json"
+URL_MM_PROV_SHACL = f"{URL_SECORO_MM}/prov.shacl.ttl"
 
 URL_MM_QUDT_JSON = f"{URL_COMP_ROB2B}/metamodels/qudt.json"
 URL_MM_GEOM_JSON = f"{URL_COMP_ROB2B}/metamodels/geometry/structural-entities.json"
