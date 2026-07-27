@@ -52,7 +52,7 @@ plugins:
         python:
           inventories:
           - https://docs.python.org/3/objects.inv
-          - https://docs.scipy.org/doc/scipy/reference/objects.inv
+          - https://docs.scipy.org/doc/scipy/objects.inv
           - https://rdflib.readthedocs.io/en/stable/objects.inv
           paths: [src]
           options:
