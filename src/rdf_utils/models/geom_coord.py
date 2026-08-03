@@ -78,9 +78,17 @@ LENGTH_IN_METRES: dict[URIRef, float] = {
 def to_metres(values: Iterable[float], unit: URIRef | None, coord_id: URIRef) -> list[float]:
     """Convert authored lengths to metres.
 
-    Orientations are already returned in radians whatever the authored unit, so lengths
-    are returned in metres for the same reason: a caller cannot discover the unit from
-    the value, and a composition mixes coordinates it did not author.
+    Orientations are already returned in radians whatever the authored unit, so
+    lengths are returned in metres for the same reason: a caller cannot discover
+    the unit from the value, and a composition mixes coordinates it did not author.
+
+    Parameters:
+        values: authored lengths to convert
+        unit: QUDT length unit used by the values
+        coord_id: URI of the coordinate node, used in error messages
+
+    Returns:
+        the lengths scaled into metres
     """
     if unit not in LENGTH_IN_METRES:
         raise ConstraintViolation(
