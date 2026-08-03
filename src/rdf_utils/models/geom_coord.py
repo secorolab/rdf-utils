@@ -7,7 +7,7 @@ Coordinate models and values using concepts from
 
 from __future__ import annotations
 
-from collections.abc import Generator
+from collections.abc import Generator, Iterable
 
 import numpy as np
 from rdflib import BNode, Graph, Literal, URIRef
@@ -68,6 +68,34 @@ from rdf_utils.models.vocab import (
 )
 
 LENGTH_UNITS: set[URIRef] = {URI_QUDT_UNIT_M, URI_QUDT_UNIT_CM, URI_QUDT_UNIT_MM}
+LENGTH_IN_METRES: dict[URIRef, float] = {
+    URI_QUDT_UNIT_M: 1.0,
+    URI_QUDT_UNIT_CM: 1e-2,
+    URI_QUDT_UNIT_MM: 1e-3,
+}
+
+
+def to_metres(values: Iterable[float], unit: URIRef | None, coord_id: URIRef) -> list[float]:
+    """Convert authored lengths to metres.
+
+    Orientations are already returned in radians whatever the authored unit, so
+    lengths are returned in metres for the same reason: a caller cannot discover
+    the unit from the value, and a composition mixes coordinates it did not author.
+
+    Parameters:
+        values: authored lengths to convert
+        unit: QUDT length unit used by the values
+        coord_id: URI of the coordinate node, used in error messages
+
+    Returns:
+        the lengths scaled into metres
+    """
+    if unit not in LENGTH_IN_METRES:
+        raise ConstraintViolation(
+            "geometry", f"Coordinate {coord_id} has no length unit to convert: {unit}"
+        )
+    scale = LENGTH_IN_METRES[unit]
+    return [value * scale for value in values]
 
 
 class IFrameRelationCoord(ModelBase):
@@ -340,8 +368,8 @@ def get_translation_between_points(
                              graph; ignored when no sampling occurs
 
     Returns:
-        summed XYZ translation, a zero vector for the same point, or None when
-        no Position path exists
+        summed XYZ translation in metres, a zero vector for the same point, or
+        None when no Position path exists
     """
     path = find_position_path(of_point, wrt_point, graph)
     if path is None:
@@ -378,6 +406,7 @@ def get_translation_between_points(
                 materialize_sample=materialize_samples,
             )
 
+        values = to_metres(values, coordinate.unit, coordinate.id)
         translation = [total + value for total, value in zip(translation, values)]
 
     return (translation[0], translation[1], translation[2])
@@ -500,8 +529,8 @@ def get_transform_between_frames(
         materialize_samples: whether to write newly sampled values to the graph
 
     Returns:
-        composed rigid transform, identity for the same frame, or None when no
-        Pose path exists
+        composed rigid transform with its translation in metres, identity for
+        the same frame, or None when no Pose path exists
     """
     path = find_pose_path(of_frame, wrt_frame, graph)
     if path is None:
@@ -555,7 +584,7 @@ def get_pose_coord_vals(
         materialize_sample: whether to write newly sampled values to the graph
 
     Returns:
-        rigid transform containing the Pose translation and rotation
+        rigid transform containing the Pose translation, in metres, and rotation
     """
     if rng is None:
         translation = get_coord_vectorxyz(coord_model.position_coord, graph)
@@ -583,7 +612,10 @@ def get_pose_coord_vals(
             materialize_sample=materialize_sample,
         )
 
-    return RigidTransform.from_components(translation, rotation)
+    return RigidTransform.from_components(
+        to_metres(translation, coord_model.position_coord.unit, coord_model.position_coord.id),
+        rotation,
+    )
 
 
 def get_coord_vectorxyz(coord_model: ModelBase, graph: Graph) -> tuple[float, float, float] | None:
